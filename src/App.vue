@@ -394,8 +394,8 @@ onUnmounted(() => {
 
 <template>
   <div class="w-[460px] h-[580px] flex flex-col bg-[#FAF7F3] text-[#241E1A] relative select-none overflow-hidden font-sans">
-    <!-- Material 3 Top App Bar -->
-    <header class="flex justify-between items-center px-4 py-2.5 bg-white border-b border-[#EADFD7] shadow-[0_1px_2px_rgba(0,0,0,0.03)] z-10">
+    <!-- Material 3 Top App Bar (提升層級為 z-40，確保下拉選單覆蓋下方內容) -->
+    <header class="flex justify-between items-center px-4 py-2.5 bg-white border-b border-[#EADFD7] shadow-[0_1px_2px_rgba(0,0,0,0.03)] z-40 relative">
       <div class="flex items-center gap-2.5">
         <img
           src="/icon48.png"
@@ -650,7 +650,7 @@ onUnmounted(() => {
     <transition name="fade">
       <div
         v-if="toastMessage"
-        class="absolute bottom-6 left-1/2 -translate-x-1/2 px-4 py-2 rounded-xl shadow-lg bg-[#241E1A] text-white text-xs z-50 pointer-events-none flex items-center gap-2 max-w-[90%] truncate"
+        class="absolute bottom-6 left-1/2 -translate-x-1/2 px-4 py-2 rounded-xl shadow-lg bg-[#241E1A] text-white text-xs z-60 pointer-events-none flex items-center gap-2 max-w-[90%] truncate"
       >
         <span
           class="w-2 h-2 rounded-full shrink-0"
