@@ -1,0 +1,26 @@
+{
+  "manifest_version": 3,
+  "name": "Dev Cookie Manager",
+  "version": "1.0.0",
+  "description": "專為前端開發者設計的 Cookie 管理神器，支援 & 與 | 進階篩選、批次更新與完整屬性編輯。",
+  "action": {
+    "default_popup": "index.html",
+    "default_icon": {
+      "16": "icon16.png",
+      "48": "icon48.png",
+      "128": "icon128.png"
+    }
+  },
+  "icons": {
+    "16": "icon16.png",
+    "48": "icon48.png",
+    "128": "icon128.png"
+  },
+  "permissions": [
+    "cookies",
+    "activeTab"
+  ],
+  "host_permissions": [
+    "<all_urls>"
+  ]
+}
