@@ -153,7 +153,7 @@ const canSave = computed(() => {
       </div>
     </div>
 
-    <!-- 狀態標籤快捷列（M3 Chips 風格，收合時呈現） -->
+    <!-- 狀態標籤快捷列（M3 Chips 風格，收合時呈現，三種不同配色區分狀態） -->
     <div v-if="!isExpanded" class="flex flex-wrap gap-1.5 mt-2 ml-9.5">
       <span
         v-if="props.item.httpOnly"
@@ -167,15 +167,18 @@ const canSave = computed(() => {
       >
         Secure
       </span>
-      <span class="text-[10px] px-2 py-0.5 rounded-full bg-[#F3EDE6] text-[#6E6056] border border-[#E5DACF]">
-        {{ props.item.sameSite === 'no_restriction' ? 'None' : props.item.sameSite }}
+      <!-- SameSite: 焦糖暖茶色 -->
+      <span class="text-[10px] font-medium px-2 py-0.5 rounded-full bg-[#FFF1E5] text-[#9A4B1A] border border-[#FAD3B8]">
+        SameSite: {{ props.item.sameSite === 'no_restriction' ? 'None' : props.item.sameSite }}
       </span>
-      <span class="text-[10px] px-2 py-0.5 rounded-full bg-[#F3EDE6] text-[#6E6056] border border-[#E5DACF]">
+      <!-- Session / Persistent: 淡暮薰衣草色 -->
+      <span class="text-[10px] font-medium px-2 py-0.5 rounded-full bg-[#F2EDF8] text-[#5C457D] border border-[#DDD0ED]">
         {{ props.item.session ? 'Session' : 'Persistent' }}
       </span>
+      <!-- Domain: 冰島藍灰色 -->
       <span
         v-if="props.item.domain"
-        class="text-[10px] px-2 py-0.5 rounded-full bg-[#F3EDE6] text-[#7E6E64] border border-[#E5DACF] max-w-[130px] truncate"
+        class="text-[10px] font-medium px-2 py-0.5 rounded-full bg-[#EBF3F8] text-[#285A7E] border border-[#CDE1EE] max-w-[140px] truncate"
         :title="props.item.domain"
       >
         {{ props.item.domain }}

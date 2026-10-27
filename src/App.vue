@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { ref, computed, onMounted } from 'vue'
+import { ref, computed, onMounted, nextTick } from 'vue'
 import CookieItemCard from '@/components/CookieItemCard.vue'
 import type { CookieItem } from '@/types/cookie'
 import { filterCookies } from '@/utils/searchParser'
@@ -8,6 +8,7 @@ const items = ref<CookieItem[]>([])
 const searchQuery = ref('')
 const batchValue = ref('')
 const loading = ref(false)
+const scrollContainer = ref<HTMLElement | null>(null)
 
 // Toast 提示
 const toastMessage = ref('')
@@ -274,6 +275,20 @@ const addNewItem = async () => {
     originalSession: true,
     isNew: true
   })
+
+  // 若目前有搜尋關鍵字，清除以便完整看到新卡片
+  if (searchQuery.value) {
+    searchQuery.value = ''
+  }
+
+  // 自動平滑滾動至最頂端
+  await nextTick()
+  if (scrollContainer.value) {
+    scrollContainer.value.scrollTo({
+      top: 0,
+      behavior: 'smooth'
+    })
+  }
 }
 
 // 搜尋過濾（支援 & 與 |）
@@ -487,7 +502,7 @@ onMounted(() => {
     </div>
 
     <!-- Cookie 清單卡片滾動區 -->
-    <main class="flex-1 overflow-y-auto px-3.5 py-3">
+    <main ref="scrollContainer" class="flex-1 overflow-y-auto px-3.5 py-3">
       <div v-if="loading" class="flex flex-col items-center justify-center py-16 gap-2 text-[#A6978C]">
         <svg xmlns="http://www.w3.org/2000/svg" class="w-6 h-6 animate-spin text-[#C26D38]" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
           <circle cx="12" cy="12" r="10" stroke-opacity="0.25" />
