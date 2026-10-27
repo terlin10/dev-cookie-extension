@@ -1,15 +1,30 @@
 <script setup lang="ts">
-import { ref, computed, onMounted, nextTick } from 'vue'
+import { ref, computed, onMounted, onUnmounted, nextTick } from 'vue'
 import CookieItemCard from '@/components/CookieItemCard.vue'
 import type { CookieItem } from '@/types/cookie'
 import { filterCookies } from '@/utils/searchParser'
-import { t, currentLocale, toggleLocale } from '@/i18n'
+import { t, currentLocale, setLocale, type Locale } from '@/i18n'
 
 const items = ref<CookieItem[]>([])
 const searchQuery = ref('')
 const batchValue = ref('')
 const loading = ref(false)
 const scrollContainer = ref<HTMLElement | null>(null)
+
+// 語系下拉選單狀態
+const isLangMenuOpen = ref(false)
+const langDropdownRef = ref<HTMLElement | null>(null)
+
+const selectLanguage = (loc: Locale) => {
+  setLocale(loc)
+  isLangMenuOpen.value = false
+}
+
+const handleClickOutside = (e: MouseEvent) => {
+  if (langDropdownRef.value && !langDropdownRef.value.contains(e.target as Node)) {
+    isLangMenuOpen.value = false
+  }
+}
 
 // Toast 提示
 const toastMessage = ref('')
@@ -369,6 +384,11 @@ const batchUpdateAll = async () => {
 
 onMounted(() => {
   loadCookies()
+  window.addEventListener('click', handleClickOutside)
+})
+
+onUnmounted(() => {
+  window.removeEventListener('click', handleClickOutside)
 })
 </script>
 
@@ -393,16 +413,85 @@ onMounted(() => {
       </div>
 
       <div class="flex items-center gap-1.5">
-        <!-- 語言切換按鈕 (繁中 / EN) -->
-        <button
-          type="button"
-          @click="toggleLocale"
-          class="px-2 py-1 rounded-full text-[11px] font-bold text-[#8B4513] bg-[#F4ECE5] hover:bg-[#EBDDCF] transition-colors cursor-pointer flex items-center gap-1 shadow-2xs"
-          :title="currentLocale === 'zh-TW' ? 'Switch to English' : '切換為繁體中文'"
-        >
-          <span class="text-xs">🌐</span>
-          <span>{{ currentLocale === 'zh-TW' ? 'EN' : '繁中' }}</span>
-        </button>
+        <!-- 語系下拉選單 (Dropdown Menu) -->
+        <div ref="langDropdownRef" class="relative">
+          <button
+            type="button"
+            @click.stop="isLangMenuOpen = !isLangMenuOpen"
+            class="px-2.5 py-1 rounded-full text-xs font-semibold text-[#8B4513] bg-[#F4ECE5] hover:bg-[#EBDDCF] transition-colors cursor-pointer flex items-center gap-1.5 border border-[#E5DACF] shadow-2xs"
+            :title="currentLocale === 'zh-TW' ? '切換語言' : 'Change Language'"
+          >
+            <span class="text-xs">🌐</span>
+            <span>{{ currentLocale === 'zh-TW' ? '繁體中文' : 'English' }}</span>
+            <svg
+              xmlns="http://www.w3.org/2000/svg"
+              class="w-3 h-3 text-[#A6978C] transition-transform duration-200"
+              :class="{ 'rotate-180': isLangMenuOpen }"
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="currentColor"
+              stroke-width="2.5"
+            >
+              <polyline points="6 9 12 15 18 9" />
+            </svg>
+          </button>
+
+          <!-- 下拉選單浮層 -->
+          <transition name="slide-down">
+            <div
+              v-if="isLangMenuOpen"
+              class="absolute right-0 top-full mt-1.5 w-32 py-1 bg-white border border-[#EADFD7] rounded-xl shadow-[0_4px_16px_rgba(0,0,0,0.08)] z-50 flex flex-col overflow-hidden text-xs"
+            >
+              <button
+                type="button"
+                @click="selectLanguage('zh-TW')"
+                class="flex items-center justify-between px-3 py-2 text-left transition-colors cursor-pointer"
+                :class="[
+                  currentLocale === 'zh-TW'
+                    ? 'bg-[#FFF3E8] text-[#8B4513] font-bold'
+                    : 'text-[#241E1A] hover:bg-[#F9F5F0]'
+                ]"
+              >
+                <span>繁體中文</span>
+                <svg
+                  v-if="currentLocale === 'zh-TW'"
+                  xmlns="http://www.w3.org/2000/svg"
+                  class="w-3.5 h-3.5 text-[#C26D38]"
+                  viewBox="0 0 24 24"
+                  fill="none"
+                  stroke="currentColor"
+                  stroke-width="2.5"
+                >
+                  <polyline points="20 6 9 17 4 12" />
+                </svg>
+              </button>
+
+              <button
+                type="button"
+                @click="selectLanguage('en')"
+                class="flex items-center justify-between px-3 py-2 text-left transition-colors cursor-pointer"
+                :class="[
+                  currentLocale === 'en'
+                    ? 'bg-[#FFF3E8] text-[#8B4513] font-bold'
+                    : 'text-[#241E1A] hover:bg-[#F9F5F0]'
+                ]"
+              >
+                <span>English</span>
+                <svg
+                  v-if="currentLocale === 'en'"
+                  xmlns="http://www.w3.org/2000/svg"
+                  class="w-3.5 h-3.5 text-[#C26D38]"
+                  viewBox="0 0 24 24"
+                  fill="none"
+                  stroke="currentColor"
+                  stroke-width="2.5"
+                >
+                  <polyline points="20 6 9 17 4 12" />
+                </svg>
+              </button>
+            </div>
+          </transition>
+        </div>
 
         <!-- 重新整理按鈕 -->
         <button
