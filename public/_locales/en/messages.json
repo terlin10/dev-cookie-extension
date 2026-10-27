@@ -1,0 +1,10 @@
+{
+  "appName": {
+    "message": "Dev Cookie Manager",
+    "description": "Extension name"
+  },
+  "appDesc": {
+    "message": "A cute Material Design 3 cookie manager for web developers, featuring & and | boolean search, batch updates, and complete property controls.",
+    "description": "Extension description"
+  }
+}

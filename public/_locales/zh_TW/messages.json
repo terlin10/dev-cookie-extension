@@ -1,0 +1,10 @@
+{
+  "appName": {
+    "message": "Dev Cookie Manager",
+    "description": "擴充套件名稱"
+  },
+  "appDesc": {
+    "message": "專為前端開發者設計的可愛 Material 3 Cookie 管理神器，支援 & 與 | 進階布林搜尋、批次更新與完整屬性編輯。",
+    "description": "擴充套件描述"
+  }
+}

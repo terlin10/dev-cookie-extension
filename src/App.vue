@@ -3,6 +3,7 @@ import { ref, computed, onMounted, nextTick } from 'vue'
 import CookieItemCard from '@/components/CookieItemCard.vue'
 import type { CookieItem } from '@/types/cookie'
 import { filterCookies } from '@/utils/searchParser'
+import { t, currentLocale, toggleLocale } from '@/i18n'
 
 const items = ref<CookieItem[]>([])
 const searchQuery = ref('')
@@ -47,7 +48,7 @@ const loadCookies = async () => {
   if (isExtensionEnv.value) {
     const url = await getActiveTabUrl()
     if (!url) {
-      showToast('無法取得當前分頁 URL，請至標準網頁分頁使用', 'error')
+      showToast(t('tabUrlError'), 'error')
       loading.value = false
       return
     }
@@ -74,7 +75,7 @@ const loadCookies = async () => {
         isNew: false
       }))
     } catch (err: any) {
-      showToast(`載入 Cookie 失敗: ${err.message}`, 'error')
+      showToast(t('loadFailed', { msg: err.message }), 'error')
     }
   } else {
     // Web Dev Mock 資料
@@ -147,7 +148,7 @@ const saveCookie = async (item: CookieItem) => {
   if (isExtensionEnv.value) {
     const url = await getActiveTabUrl()
     if (!url) {
-      showToast('無法取得當前分頁 URL', 'error')
+      showToast(t('tabUrlError'), 'error')
       return
     }
 
@@ -197,9 +198,9 @@ const saveCookie = async (item: CookieItem) => {
       item.originalExpirationDate = item.expirationDate
       item.isNew = false
 
-      showToast(`已成功儲存 Cookie: ${item.key}`, 'success')
+      showToast(t('saveSuccess', { key: item.key }), 'success')
     } catch (err: any) {
-      showToast(`儲存失敗: ${err.message}`, 'error')
+      showToast(t('saveFailed', { msg: err.message }), 'error')
     }
   } else {
     // Mock 儲存
@@ -212,7 +213,7 @@ const saveCookie = async (item: CookieItem) => {
     item.originalSession = item.session
     item.originalExpirationDate = item.expirationDate
     item.isNew = false
-    showToast(`[Mock] 已儲存 Cookie: ${item.key}`, 'success')
+    showToast(t('mockSaved', { key: item.key }), 'success')
   }
 }
 
@@ -229,13 +230,13 @@ const deleteCookie = async (item: CookieItem, index: number) => {
         })
       }
       items.value.splice(index, 1)
-      showToast(`已刪除 Cookie: ${item.key}`, 'success')
+      showToast(t('deleteSuccess', { key: item.key }), 'success')
     } catch (err: any) {
-      showToast(`刪除失敗: ${err.message}`, 'error')
+      showToast(t('deleteFailed', { msg: err.message }), 'error')
     }
   } else {
     items.value.splice(index, 1)
-    showToast(`[Mock] 已刪除 Cookie: ${item.key}`, 'success')
+    showToast(t('mockDeleted', { key: item.key }), 'success')
   }
 }
 
@@ -305,7 +306,7 @@ const isSearching = computed(() => {
 const batchUpdateAll = async () => {
   const targetItems = filteredItems.value
   if (targetItems.length === 0) {
-    showToast('目前沒有可更新的 Cookie', 'error')
+    showToast(t('batchNoItems'), 'error')
     return
   }
 
@@ -315,7 +316,7 @@ const batchUpdateAll = async () => {
   if (isExtensionEnv.value) {
     const url = await getActiveTabUrl()
     if (!url) {
-      showToast('無法取得當前分頁 URL', 'error')
+      showToast(t('tabUrlError'), 'error')
       return
     }
 
@@ -352,7 +353,7 @@ const batchUpdateAll = async () => {
       }
     }
     loading.value = false
-    showToast(`已成功批次更新 ${successCount} 筆 Cookie！`, 'success')
+    showToast(t('batchSuccess', { count: successCount }), 'success')
   } else {
     // Mock 批次更新
     for (const item of targetItems) {
@@ -362,7 +363,7 @@ const batchUpdateAll = async () => {
       item.isNew = false
       successCount++
     }
-    showToast(`[Mock] 已批次更新 ${successCount} 筆 Cookie！`, 'success')
+    showToast(t('mockBatchSuccess', { count: successCount }), 'success')
   }
 }
 
@@ -383,21 +384,32 @@ onMounted(() => {
         />
         <div class="flex flex-col">
           <h1 class="text-sm font-bold text-[#8B4513] tracking-tight leading-none">
-            Dev Cookie Manager
+            {{ t('appName') }}
           </h1>
           <span class="text-[10px] text-[#A6978C] font-medium mt-0.5">
-            {{ isExtensionEnv ? 'Extension Mode' : 'Web Dev Mode' }}
+            {{ isExtensionEnv ? t('extensionMode') : t('webDevMode') }}
           </span>
         </div>
       </div>
 
       <div class="flex items-center gap-1.5">
+        <!-- 語言切換按鈕 (繁中 / EN) -->
+        <button
+          type="button"
+          @click="toggleLocale"
+          class="px-2 py-1 rounded-full text-[11px] font-bold text-[#8B4513] bg-[#F4ECE5] hover:bg-[#EBDDCF] transition-colors cursor-pointer flex items-center gap-1 shadow-2xs"
+          :title="currentLocale === 'zh-TW' ? 'Switch to English' : '切換為繁體中文'"
+        >
+          <span class="text-xs">🌐</span>
+          <span>{{ currentLocale === 'zh-TW' ? 'EN' : '繁中' }}</span>
+        </button>
+
         <!-- 重新整理按鈕 -->
         <button
           type="button"
           @click="loadCookies"
           class="w-8 h-8 rounded-full flex items-center justify-center text-[#7E6E64] hover:bg-[#F4ECE5] hover:text-[#241E1A] transition-colors cursor-pointer"
-          title="重新載入 Cookie"
+          :title="t('reloadTooltip')"
         >
           <svg
             xmlns="http://www.w3.org/2000/svg"
@@ -436,7 +448,7 @@ onMounted(() => {
         <input
           v-model="searchQuery"
           type="text"
-          placeholder="搜尋 Cookie (支援 & 及 | 運算，如: token & auth | user)..."
+          :placeholder="t('searchPlaceholder')"
           class="w-full pl-9 pr-8 py-2 bg-white border border-[#EADFD7] rounded-xl text-xs text-[#241E1A] placeholder-[#A6978C] outline-none focus:border-[#C26D38] focus:ring-1 focus:ring-[#C26D38] shadow-[0_1px_2px_rgba(0,0,0,0.02)] transition-all"
         />
 
@@ -445,7 +457,7 @@ onMounted(() => {
           type="button"
           @click="searchQuery = ''"
           class="absolute right-2.5 w-5 h-5 rounded-full flex items-center justify-center text-[#A6978C] hover:text-[#241E1A] hover:bg-[#F4ECE5] cursor-pointer"
-          title="清除搜尋"
+          :title="t('clearSearchTooltip')"
         >
           <svg xmlns="http://www.w3.org/2000/svg" class="w-3.5 h-3.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
             <line x1="18" y1="6" x2="6" y2="18" />
@@ -464,7 +476,7 @@ onMounted(() => {
             <input
               v-model="batchValue"
               type="text"
-              placeholder="輸入新 Value 批次覆蓋篩選結果..."
+              :placeholder="t('batchValuePlaceholder')"
               class="w-full px-3 py-1.5 bg-white border border-[#EADFD7] rounded-lg text-xs text-[#241E1A] placeholder-[#A6978C] outline-none font-mono focus:border-[#C26D38] focus:ring-1 focus:ring-[#C26D38]"
               @keydown.enter="batchUpdateAll"
             />
@@ -480,7 +492,7 @@ onMounted(() => {
               <path d="M12 20h9" />
               <path d="M16.5 3.5a2.121 2.121 0 0 1 3 3L7 19l-4 1 1-4L16.5 3.5z" />
             </svg>
-            更新全部 ({{ filteredItems.length }})
+            {{ t('batchUpdateBtn') }} ({{ filteredItems.length }})
           </button>
         </div>
       </transition>
@@ -489,14 +501,14 @@ onMounted(() => {
       <div class="flex justify-between items-center px-1 text-[11px] text-[#A6978C]">
         <span>
           <template v-if="isSearching">
-            搜尋結果：<strong class="text-[#8B4513]">{{ filteredItems.length }}</strong> 筆 (共 {{ items.length }} 筆)
+            {{ t('searchResultCount', { filtered: filteredItems.length, total: items.length }) }}
           </template>
           <template v-else>
-            共 <strong class="text-[#8B4513]">{{ items.length }}</strong> 筆 Cookie
+            {{ t('totalCount', { total: items.length }) }}
           </template>
         </span>
         <span v-if="isSearching" class="text-[10px] text-[#C26D38] bg-[#FFE8D6] px-1.5 py-0.2 rounded font-medium">
-          支援 & (AND) 及 | (OR)
+          {{ t('logicBadge') }}
         </span>
       </div>
     </div>
@@ -508,7 +520,7 @@ onMounted(() => {
           <circle cx="12" cy="12" r="10" stroke-opacity="0.25" />
           <path d="M12 2a10 10 0 0 1 10 10" />
         </svg>
-        <span class="text-xs">讀取 Cookie 中...</span>
+        <span class="text-xs">{{ t('loading') }}</span>
       </div>
 
       <div
@@ -517,7 +529,7 @@ onMounted(() => {
       >
         <img src="/icon48.png" alt="Empty" class="w-10 h-10 opacity-40 grayscale" />
         <span class="text-xs">
-          {{ isSearching ? '沒有符合條件的 Cookie' : '此網址目前沒有任何 Cookie' }}
+          {{ isSearching ? t('emptySearch') : t('emptyList') }}
         </span>
       </div>
 
@@ -537,7 +549,7 @@ onMounted(() => {
       type="button"
       @click="addNewItem"
       class="absolute bottom-5 right-5 w-13 h-13 rounded-2xl bg-[#C26D38] hover:bg-[#A95624] text-white flex items-center justify-center shadow-[0_4px_14px_rgba(194,109,56,0.38)] cursor-pointer transition-all duration-200 hover:scale-105 active:scale-95 z-20"
-      title="新增 Cookie"
+      :title="t('addCookieTooltip')"
     >
       <svg xmlns="http://www.w3.org/2000/svg" class="w-6 h-6" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4">
         <path d="M12 5v14" />

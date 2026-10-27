@@ -1,6 +1,7 @@
 <script setup lang="ts">
 import { ref, computed } from 'vue'
 import type { CookieItem } from '@/types/cookie'
+import { t } from '@/i18n'
 
 const props = defineProps<{
   item: CookieItem
@@ -68,7 +69,7 @@ const canSave = computed(() => {
         type="button"
         @click="isExpanded = !isExpanded"
         class="w-7 h-7 rounded-full flex items-center justify-center text-[#7E6E64] hover:bg-[#F4ECE5] hover:text-[#241E1A] mt-1 cursor-pointer transition-colors"
-        :title="isExpanded ? '收合設定' : '展開設定'"
+        :title="isExpanded ? t('collapseTooltip') : t('expandTooltip')"
       >
         <svg
           xmlns="http://www.w3.org/2000/svg"
@@ -91,7 +92,7 @@ const canSave = computed(() => {
             v-if="props.item.isNew"
             v-model="props.item.key"
             type="text"
-            placeholder="輸入 Cookie 名稱 (Key)..."
+            :placeholder="t('keyPlaceholder')"
             class="flex-1 bg-[#FAF6F2] border border-[#D5C2B4] rounded-lg px-2.5 py-1 text-xs font-semibold text-[#8B4513] outline-none focus:border-[#C26D38] focus:ring-1 focus:ring-[#C26D38]"
           />
           <span
@@ -106,14 +107,14 @@ const canSave = computed(() => {
             v-if="isModified"
             class="text-[10px] px-1.5 py-0.2 rounded-full font-medium bg-[#FFE8D6] text-[#C26D38] border border-[#F5C7A9]"
           >
-            已變更
+            {{ t('modifiedBadge') }}
           </span>
         </div>
 
         <!-- Cookie Value -->
         <textarea
           v-model="props.item.value"
-          placeholder="Value..."
+          :placeholder="t('valuePlaceholder')"
           class="w-full bg-[#FAF7F3] border border-[#EADFD7] rounded-xl px-2.5 py-1.5 text-xs text-[#241E1A] font-mono outline-none resize-y min-h-[36px] focus:bg-white focus:border-[#C26D38] focus:ring-1 focus:ring-[#C26D38] transition-colors leading-relaxed"
           rows="1"
         ></textarea>
@@ -131,7 +132,7 @@ const canSave = computed(() => {
           ]"
           :disabled="!canSave"
           @click="emit('save', props.item)"
-          title="儲存變更"
+          :title="t('saveTooltip')"
         >
           <svg xmlns="http://www.w3.org/2000/svg" class="w-3.5 h-3.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2">
             <polyline points="20 6 9 17 4 12" />
@@ -142,7 +143,7 @@ const canSave = computed(() => {
           type="button"
           class="w-7 h-7 rounded-full bg-[#F4ECE5] text-[#7E6E64] flex items-center justify-center cursor-pointer transition-all duration-200 hover:text-red-600 hover:bg-red-50 hover:border-red-200"
           @click="emit('delete')"
-          title="刪除 Cookie"
+          :title="t('deleteTooltip')"
         >
           <svg xmlns="http://www.w3.org/2000/svg" class="w-3.5 h-3.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
             <path d="M3 6h18" />
@@ -159,21 +160,21 @@ const canSave = computed(() => {
         v-if="props.item.httpOnly"
         class="text-[10px] font-semibold px-2 py-0.5 rounded-full bg-[#FEF3C7] text-[#92400E] border border-[#FDE68A]"
       >
-        HttpOnly
+        {{ t('httpOnly') }}
       </span>
       <span
         v-if="props.item.secure"
         class="text-[10px] font-semibold px-2 py-0.5 rounded-full bg-[#DCFCE7] text-[#166534] border border-[#BBF7D0]"
       >
-        Secure
+        {{ t('secure') }}
       </span>
       <!-- SameSite: 焦糖暖茶色 -->
       <span class="text-[10px] font-medium px-2 py-0.5 rounded-full bg-[#FFF1E5] text-[#9A4B1A] border border-[#FAD3B8]">
-        SameSite: {{ props.item.sameSite === 'no_restriction' ? 'None' : props.item.sameSite }}
+        {{ t('sameSite') }}: {{ props.item.sameSite === 'no_restriction' ? 'None' : props.item.sameSite }}
       </span>
       <!-- Session / Persistent: 淡暮薰衣草色 -->
       <span class="text-[10px] font-medium px-2 py-0.5 rounded-full bg-[#F2EDF8] text-[#5C457D] border border-[#DDD0ED]">
-        {{ props.item.session ? 'Session' : 'Persistent' }}
+        {{ props.item.session ? t('session') : t('persistent') }}
       </span>
       <!-- Domain: 冰島藍灰色 -->
       <span
@@ -193,22 +194,22 @@ const canSave = computed(() => {
       <div class="grid grid-cols-2 gap-2.5">
         <!-- Domain -->
         <div class="flex flex-col gap-1">
-          <label class="text-[11px] text-[#7E6E64] font-medium">Domain</label>
+          <label class="text-[11px] text-[#7E6E64] font-medium">{{ t('domainLabel') }}</label>
           <input
             v-model="props.item.domain"
             type="text"
-            placeholder="例如: .example.com"
+            :placeholder="t('domainPlaceholder')"
             class="bg-[#FAF7F3] border border-[#EADFD7] rounded-xl px-2.5 py-1.5 text-xs text-[#241E1A] outline-none focus:bg-white focus:border-[#C26D38] focus:ring-1 focus:ring-[#C26D38]"
           />
         </div>
 
         <!-- Path -->
         <div class="flex flex-col gap-1">
-          <label class="text-[11px] text-[#7E6E64] font-medium">Path</label>
+          <label class="text-[11px] text-[#7E6E64] font-medium">{{ t('pathLabel') }}</label>
           <input
             v-model="props.item.path"
             type="text"
-            placeholder="例如: /"
+            :placeholder="t('pathPlaceholder')"
             class="bg-[#FAF7F3] border border-[#EADFD7] rounded-xl px-2.5 py-1.5 text-xs text-[#241E1A] outline-none focus:bg-white focus:border-[#C26D38] focus:ring-1 focus:ring-[#C26D38]"
           />
         </div>
@@ -217,35 +218,35 @@ const canSave = computed(() => {
       <div class="grid grid-cols-2 gap-2.5">
         <!-- SameSite -->
         <div class="flex flex-col gap-1">
-          <label class="text-[11px] text-[#7E6E64] font-medium">SameSite</label>
+          <label class="text-[11px] text-[#7E6E64] font-medium">{{ t('sameSiteLabel') }}</label>
           <select
             v-model="props.item.sameSite"
             class="bg-[#FAF7F3] border border-[#EADFD7] rounded-xl px-2 py-1.5 text-xs text-[#241E1A] outline-none focus:bg-white focus:border-[#C26D38] focus:ring-1 focus:ring-[#C26D38] cursor-pointer"
           >
-            <option value="unspecified">Unspecified (預設)</option>
-            <option value="lax">Lax</option>
-            <option value="strict">Strict</option>
-            <option value="no_restriction">None (無限制)</option>
+            <option value="unspecified">{{ t('sameSiteUnspecified') }}</option>
+            <option value="lax">{{ t('sameSiteLax') }}</option>
+            <option value="strict">{{ t('sameSiteStrict') }}</option>
+            <option value="no_restriction">{{ t('sameSiteNone') }}</option>
           </select>
         </div>
 
         <!-- Session Toggle -->
         <div class="flex flex-col gap-1">
-          <label class="text-[11px] text-[#7E6E64] font-medium">生命週期</label>
+          <label class="text-[11px] text-[#7E6E64] font-medium">{{ t('lifetimeLabel') }}</label>
           <label class="flex items-center gap-2 py-1.5 cursor-pointer select-none">
             <input
               v-model="props.item.session"
               type="checkbox"
               class="w-4 h-4 rounded text-[#C26D38] accent-[#C26D38] cursor-pointer"
             />
-            <span class="text-xs text-[#241E1A]">Session (關閉即逝)</span>
+            <span class="text-xs text-[#241E1A]">{{ t('sessionCheckbox') }}</span>
           </label>
         </div>
       </div>
 
       <!-- Expiration Date Selector (當非 Session Cookie 時顯示) -->
       <div v-if="!props.item.session" class="flex flex-col gap-1">
-        <label class="text-[11px] text-[#7E6E64] font-medium">過期時間 (Expiration Date)</label>
+        <label class="text-[11px] text-[#7E6E64] font-medium">{{ t('expirationLabel') }}</label>
         <input
           v-model="expirationDatetimeLocal"
           type="datetime-local"
@@ -263,8 +264,8 @@ const canSave = computed(() => {
             class="w-4 h-4 rounded text-[#C26D38] accent-[#C26D38] cursor-pointer"
           />
           <div class="flex flex-col">
-            <span class="text-xs font-semibold text-[#241E1A]">HttpOnly</span>
-            <span class="text-[10px] text-[#8E8076]">防 Client JS 讀取</span>
+            <span class="text-xs font-semibold text-[#241E1A]">{{ t('httpOnly') }}</span>
+            <span class="text-[10px] text-[#8E8076]">{{ t('httpOnlyDesc') }}</span>
           </div>
         </label>
 
@@ -276,8 +277,8 @@ const canSave = computed(() => {
             class="w-4 h-4 rounded text-[#C26D38] accent-[#C26D38] cursor-pointer"
           />
           <div class="flex flex-col">
-            <span class="text-xs font-semibold text-[#241E1A]">Secure</span>
-            <span class="text-[10px] text-[#8E8076]">限 HTTPS 傳輸</span>
+            <span class="text-xs font-semibold text-[#241E1A]">{{ t('secure') }}</span>
+            <span class="text-[10px] text-[#8E8076]">{{ t('secureDesc') }}</span>
           </div>
         </label>
       </div>
